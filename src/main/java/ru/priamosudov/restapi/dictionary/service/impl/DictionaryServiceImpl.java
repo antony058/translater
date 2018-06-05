@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.priamosudov.restapi.dictionary.model.DictionaryModel;
 import ru.priamosudov.restapi.dictionary.repository.DictionaryRepository;
+import ru.priamosudov.restapi.dictionary.repository.MongoDictionaryRepository;
 import ru.priamosudov.restapi.dictionary.service.DictionaryService;
 import ru.priamosudov.restapi.dictionary.utils.DictionaryMapper;
 import ru.priamosudov.restapi.dictionary.view.DictionaryView;
@@ -17,11 +18,14 @@ import java.util.Optional;
 public class DictionaryServiceImpl implements DictionaryService {
     private final TranslatorService translatorService;
     private final DictionaryRepository dictionaryRepository;
+    private final MongoDictionaryRepository mongoRepository;
 
     @Autowired
-    public DictionaryServiceImpl(TranslatorService translatorService, DictionaryRepository dictionaryRepository) {
+    public DictionaryServiceImpl(TranslatorService translatorService, DictionaryRepository dictionaryRepository,
+                                 MongoDictionaryRepository mongoRepository) {
         this.translatorService = translatorService;
         this.dictionaryRepository = dictionaryRepository;
+        this.mongoRepository = mongoRepository;
     }
 
     @Override
@@ -36,6 +40,7 @@ public class DictionaryServiceImpl implements DictionaryService {
             dictionaryRepository.save(DictionaryMapper.toModel(view, originWord));
         } else {
             view = DictionaryMapper.toView(model.get());
+            mongoRepository.save(model.get());
         }
 
         return view;
